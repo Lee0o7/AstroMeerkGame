@@ -159,17 +159,17 @@ canvas { display:block;
     <div class="modal-content" id="modalContent"></div>
 </div>
 
-<audio id="bg-music" src="C:/Users/leroy/Downloads/background.mp3" loop></audio>
-<audio id="gameover-music" src="C:/Users/leroy/Downloads/game-over-arcade.mp3"></audio>
-<audio id="rain-sound" src="C:/Users/leroy/Downloads/real-rain-sound.mp3"></audio>
-<audio id="thunder-sound" src="C:/Users/leroy/Downloads/explosion.mp3"></audio>
-<audio id="coin-sound" src="C:/Users/leroy/Downloads/coin.mp3"></audio>
-<audio id="laser-sound" src="C:/Users/leroy/Downloads/laser-gun.mp3"></audio>
-<audio id="powerup-sound" src="C:/Users/leroy/Downloads/powerup.mp3"></audio>
-<audio id="boss-arrives-music" src="C:/Users/leroy/Downloads/boss_arrives.mp3"></audio>
-<audio id="boss-shoot-sound" src="C:/Users/leroy/Downloads/boss_shoot.mp3"></audio>
-<audio id="dead-boss-music" src="C:/Users/leroy/Downloads/dead_boss.mp3"></audio>
-<audio id="nuke-sound" src="C:/Users/leroy/Downloads/nuke-explosion.mp3"></audio>
+<audio id="bg-music" src="audio/background.mp3" loop></audio>
+<audio id="gameover-music" src="audio/game-over-arcade.mp3"></audio>
+<audio id="rain-sound" src="audio/real-rain-sound.mp3"></audio>
+<audio id="thunder-sound" src="audio/explosion.mp3"></audio>
+<audio id="coin-sound" src="audio/coin.mp3"></audio>
+<audio id="laser-sound" src="audio/laser-gun.mp3"></audio>
+<audio id="powerup-sound" src="audio/powerup.mp3"></audio>
+<audio id="boss-arrives-music" src="audio/boss_arrives.mp3"></audio>
+<audio id="boss-shoot-sound" src="audio/boss_shoot.mp3"></audio>
+<audio id="dead-boss-music" src="audio/dead_boss.mp3"></audio>
+<audio id="nuke-sound" src="audio/nuke-explosion.mp3"></audio>
 
 
 <script>
@@ -194,7 +194,7 @@ let countdownTimer = 0; // NEW: Timer for countdown intervals
 
 // Meerkat
 let meerkat={x:150,y:canvas.height/2,width:60,height:60,velocity:0,angle:0};
-let meerkatImg=new Image(); meerkatImg.src="C:/Users/leroy/Downloads/meerkat.png";
+let meerkatImg=new Image(); meerkatImg.src="images/meerkat.png";
 let meerkatLoaded=false; meerkatImg.onload=()=>meerkatLoaded=true;
 
 // Load alien ship images
@@ -202,13 +202,13 @@ let shipImgs = {};
 let shipNames = ["ship", "ship2", "ship4", "ship5"];
 shipNames.forEach(name => {
     shipImgs[name] = new Image();
-    shipImgs[name].src = `C:/Users/leroy/Downloads/${name}.png`;
+    shipImgs[name].src = `images/${name}.png`;
 });
 
 // Boss variables
 let boss = null;
 let bossImg = new Image();
-bossImg.src = "C:/Users/leroy/Downloads/alienboss.png";
+bossImg.src = "images/alienboss.png";
 let bossLoaded = false;
 bossImg.onload = () => bossLoaded = true;
 let bossLasers = [];
