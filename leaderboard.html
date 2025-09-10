@@ -79,66 +79,6 @@
             margin-bottom: 25px;
         }
 
-        /* Search input and button group */
-        .search-group {
-            display: flex;
-            gap: 10px; /* Space between input and button */
-            margin-bottom: 25px;
-        }
-
-        .search-input {
-            flex: 1;
-            padding: 12px 15px;
-            border-radius: 8px;
-            background: #1a1a4c; /* Dark blue background */
-            color: #fff;
-            border: 2px solid #00ffff; /* Neon cyan border */
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.9em;
-            box-shadow: 0 0 5px rgba(0, 255, 255, 0.5); /* Subtle cyan glow */
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-
-        .search-input::placeholder {
-            color: #888;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #ff00ff; /* Fuchsia on focus */
-            box-shadow: 0 0 10px rgba(255, 0, 255, 0.7);
-        }
-
-        .search-button {
-            background: #1a1a4c; /* Dark blue button background */
-            color: #fff;
-            border: 2px solid #ff00ff; /* Fuchsia border */
-            padding: 12px 18px; /* Adjusted padding */
-            font-size: 0.9em;
-            cursor: pointer;
-            border-radius: 8px;
-            box-shadow: 0 0 10px #ff00ff; /* Fuchsia glow */
-            transition: transform 0.1s, box-shadow 0.3s;
-            display: flex; /* For SVG icon alignment */
-            align-items: center;
-            justify-content: center;
-        }
-
-        .search-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px #ff00ff;
-        }
-
-        .search-button:active {
-            transform: scale(0.95);
-        }
-
-        .search-button svg {
-            width: 20px;
-            height: 20px;
-            stroke: currentColor;
-        }
-
         /* Leaderboard list styling */
         #leaderboard-list {
             list-style: none;
@@ -171,76 +111,70 @@
             box-shadow: 0 0 15px #ff00ff; /* Fuchsia glow */
             animation: pulsateListItem 1.5s ease-in-out infinite alternate;
         }
+
         .rank-1:hover {
-             box-shadow: 0 0 25px #ff00ff;
+            box-shadow: 0 0 25px #ff00ff;
         }
 
         .rank-2 {
             background: linear-gradient(to right, #004d4d, #006666); /* Darker teal gradient */
-            color: #e0ffff; /* Lighter cyan text */
+            color: #e0ffff;
             border: 2px solid #00ffff;
-            box-shadow: 0 0 15px #00ffff; /* Cyan glow */
+            box-shadow: 0 0 15px #00ffff;
         }
+
         .rank-2:hover {
-             box-shadow: 0 0 25px #00ffff;
+            box-shadow: 0 0 25px #00ffff;
         }
 
         .rank-3 {
-            background: linear-gradient(to right, #4d3300, #664400); /* Darker orange/gold gradient */
-            color: #fff8e0; /* Lighter gold text */
-            border: 2px solid #ffd700; /* Gold border */
-            box-shadow: 0 0 15px #ffd700; /* Gold glow */
+            background: linear-gradient(to right, #4a4a00, #666600); /* Darker gold gradient */
+            color: #ffffe0;
+            border: 2px solid #ffff00;
+            box-shadow: 0 0 15px #ffff00;
         }
+
         .rank-3:hover {
-            box-shadow: 0 0 25px #ffd700;
+            box-shadow: 0 0 25px #ffff00;
         }
 
-        /* Default list item style for ranks > 3 */
         .default-rank {
-            background: #1a1a4c; /* Dark blue background */
-            color: #fff;
-            border: 1px solid #00ffff; /* Cyan border */
-            box-shadow: 0 0 5px rgba(0, 255, 255, 0.3); /* Subtle cyan glow */
-        }
-        .default-rank:hover {
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
-        }
-
-        #leaderboard-list li .player-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            background: rgba(25, 25, 112, 0.5);
+            border: 1px solid rgba(0, 255, 255, 0.2);
         }
 
         #leaderboard-list li .rank-display {
-            font-size: 1.2em; /* Bigger for rank number/icon */
-            width: 30px; /* Fixed width for alignment */
-            text-align: center;
+            font-size: 1.2em;
+            width: 30px; /* Fixed width for rank number */
+            text-align: left;
+            margin-right: 15px;
         }
-        
+
         #leaderboard-list li .player-name {
-            font-size: 1em;
-            max-width: 180px; /* Limit name width */
+            flex-grow: 1; /* Take up remaining space */
+            text-align: left;
+            text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis; /* Add ellipsis for long names */
+            max-width: 250px;
         }
 
         #leaderboard-list li .score-display {
             font-size: 1.1em;
-            color: #ffe0ff; /* Fuchsia for scores */
-            text-shadow: 0 0 5px #ff00ff;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 5px #ff00ff; /* Fuchsia glow for score */
         }
-
-        /* Keyframe animations */
+        
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
 
         @keyframes pulsateTitle {
-            from { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff; }
-            to { text-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff; }
+            0% { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff; }
+            50% { text-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff; }
+            100% { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff; }
         }
         
         @keyframes pulsateListItem {
@@ -254,7 +188,7 @@
             .leaderboard-container h1 {
                 font-size: 2em;
             }
-            .search-input, .search-button, .back-to-game span, #leaderboard-list li {
+            .back-to-game span, #leaderboard-list li {
                 font-size: 0.8em;
             }
             #leaderboard-list li .rank-display {
@@ -271,14 +205,84 @@
     <div class="leaderboard-container">
         <header class="text-center">
             <a href="index.html" class="back-to-game">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5"></path>
+                    <path d="M12 19L5 12L12 5"></path>
                 </svg>
-                <span>Back to Home</span>
+                <span>Back to Game</span>
             </a>
             <h1>The Cool Wall</h1>
-            <p>Top 50 AstroMeerk Pilots</p>
+            <p>High Scores from the Galaxy</p>
         </header>
 
-        <div class="search-group">
-            <input type="
+        <ul id="leaderboard-list">
+            </ul>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+    // Your Firebase project's configuration object
+    const firebaseConfig = {
+      // Replace this with the config you find in your Firebase Console under "Project settings"
+      apiKey: "...",
+      authDomain: "...",
+      projectId: "...",
+      storageBucket: "...",
+      messagingSenderId: "...",
+      appId: "...",
+      databaseURL: "..." // Make sure you have this line!
+    };
+    
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    const leaderboardList = document.getElementById('leaderboard-list');
+
+    // Fetch and display scores
+    function fetchScores() {
+        // Reference to the 'scores' node in your database
+        const scoresRef = firebase.database().ref('scores');
+
+        // Order the scores by value in descending order and limit to the top 50
+        scoresRef.orderByChild('score').limitToLast(50).on('value', (snapshot) => {
+            const scores = [];
+            snapshot.forEach((childSnapshot) => {
+                scores.push(childSnapshot.val());
+            });
+            // Sort in descending order to get the highest scores first
+            scores.sort((a, b) => b.score - a.score);
+            displayScores(scores);
+        });
+    }
+
+    // This function will draw the scores in the list
+    function displayScores(scores) {
+        leaderboardList.innerHTML = ''; // Clear the list first
+        scores.forEach((item, index) => {
+            const rank = index + 1;
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `<span class="rank-display">${rank}.</span>
+                                  <span class="player-name">${item.name}</span>
+                                  <span class="score-display">Score: ${item.score}</span>`;
+            
+            // Add different styles for the top 3 players
+            if (rank === 1) {
+                listItem.classList.add('rank-1');
+            } else if (rank === 2) {
+                listItem.classList.add('rank-2');
+            } else if (rank === 3) {
+                listItem.classList.add('rank-3');
+            } else {
+                listItem.classList.add('default-rank');
+            }
+            leaderboardList.appendChild(listItem);
+        });
+    }
+    
+    // Call the function to fetch the scores when the page loads
+    fetchScores();
+    </script>
+</body>
+</html>
