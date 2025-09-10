@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flappy Meerkat - Weather Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+body {
+    margin:0;
+    overflow:hidden;
+    font-family:'Press Start 2P',cursive;
+    background:#000033; /* A dark space color */
+    transition:background 1s ease-in-out;
+}
+canvas { display:block;
+}
+#scoreboard {
+    position:absolute;
+    top:10px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:1.2em;
+    font-weight:bold;
+    color:#fff;
+    text-shadow:0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff;
+    z-index:10;
+    background:rgba(25, 25, 112, 0.5); /* Semi-transparent dark blue */
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: 2px solid #00ffff;
+}
+#bestScore {
+    position:absolute;
+    top:50px;
+    right:20px;
+    font-size:1em;
+    color:#fff;
+    text-shadow:0 0 5px #ff00ff, 0 0 10px #ff00ff;
+    background:rgba(25, 25, 112, 0.5);
+    padding: 10px 15px;
+    border-radius: 5px;
+    border: 2px solid #ff00ff;
+}
+.game-modal { position:fixed;top:0;left:0;width:100%;height:100%; background:rgba(0,0,0,0.8);display:none;justify-content:center;align-items:center;z-index:20;}
+.modal-content { background:#0a0a2a; /* Darker, more space-like background */
+    color:#fff;padding:30px;text-align:center;border-radius:15px;
+    box-shadow:0 0 30px rgba(0,255,255,0.7); /* Cyan outer glow */
+    border:2px solid cyan; /* Neon cyan border */
+    animation:fadeIn 0.5s ease-in-out;max-width:90%;width:400px;
+    position:relative;
+}
+.modal-content h2{
+    color: #fff;
+    font-size:3em;
+    margin:0 0 15px;
+    text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff; /* Neon cyan glow */
+    animation: pulsate 1.5s ease-in-out infinite alternate;
+}
+.modal-content p{color:#fff;font-size:1.2em;margin:0 0 25px;}
+.modal-content button{font-family:'Press Start 2P',cursive;
+    background: #1a1a4c; /* Dark blue button background */
+    color: #fff;
+    border: 2px solid;
+    padding:15px 30px;font-size:1em;cursor:pointer;border-radius:5px;
+    box-shadow:0 0 10px #00ff00; /* Neon green glow */
+    transition: transform 0.1s, box-shadow 0.3s;
+    margin: 5px;
+}
+.modal-content button:first-of-type {
+    border-color: #ff00ff; /* Fuchsia border */
+    box-shadow: 0 0 10px #ff00ff; /* Fuchsia glow */
+}
+.modal-content button:last-of-type {
+    border-color: #00ffff; /* Cyan border */
+    box-shadow: 0 0 10px #00ffff; /* Cyan glow */
+}
+.modal-content button:hover{
+    transform:scale(1.05); /* Slight grow effect */
+    box-shadow: 0 0 20px #ff00ff; /* Intense fuchsia glow on hover */
+}
+.modal-content button:last-of-type:hover {
+    box-shadow: 0 0 20px #00ffff; /* Intense cyan glow on hover */
+}
+.modal-content button:active{transform:scale(0.95);}
+
+/* New keyframes for animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes pulsate {
+    from { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff; }
+    to { text-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff; }
+}
+#nameModal {position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);
+    display:flex;justify-content:center;align-items:center;z-index:30;}
+#nameModal .modal-content{
+    background:#0a0a2a;
+    border:2px solid cyan;
+    box-shadow:0 0 30px rgba(0,255,255,0.7);
+    border-radius:15px;
+    padding:30px;
+    text-align:center;
+    animation:fadeIn 0.5s ease-in-out;
+    max-width:90%;
+    width:400px;
+    position:relative;
+}
+#nameModal input{
+    width:80%;
+    padding:15px;
+    margin-bottom:20px;
+    font-size:1em;
+    border-radius:5px;
+    border:2px solid #00ffff; /* Neon cyan border */
+    background:#1a1a4c; /* Dark blue background */
+    color:#fff;
+    box-shadow:0 0 10px #00ffff; /* Neon cyan glow */
+    font-family:'Press Start 2P',cursive;
+    text-align: center;
+}
+#nameModal button{
+    font-family:'Press Start 2P',cursive;
+    background: #1a1a4c;
+    color: #fff;
+    border: 2px solid #ff00ff;
+    padding:15px 30px;
+    font-size:1em;
+    cursor:pointer;
+    border-radius:5px;
+    box-shadow:0 0 10px #ff00ff;
+    transition: transform 0.1s, box-shadow 0.3s;
+    margin: 5px;
+}
+#nameModal button:hover{
+    transform:scale(1.05);
+    box-shadow: 0 0 20px #ff00ff;
+}
+#nameModal button:active{transform:scale(0.95);}
+</style>
+</head>
+<body>
+<div id="scoreboard">Score: 0 | Time: 0s</div>
+<div id="bestScore">Best: 0</div>
+<canvas id="gameCanvas"></canvas>
+
+<div id="nameModal">
+    <div class="modal-content">
+        <h2>Enter your name</h2>
+        <input type="text" id="playerNameInput" placeholder="Player" />
+        <button id="nameSubmitBtn">Start Game</button>
+    </div>
+</div>
+
+<div id="gameModal" class="game-modal">
+    <div class="modal-content" id="modalContent"></div>
+</div>
+
+<audio id="bg-music" src="C:/Users/leroy/Downloads/background.mp3" loop></audio>
+<audio id="gameover-music" src="C:/Users/leroy/Downloads/game-over-arcade.mp3"></audio>
+<audio id="rain-sound" src="C:/Users/leroy/Downloads/real-rain-sound.mp3"></audio>
+<audio id="thunder-sound" src="C:/Users/leroy/Downloads/explosion.mp3"></audio>
+<audio id="coin-sound" src="C:/Users/leroy/Downloads/coin.mp3"></audio>
+<audio id="laser-sound" src="C:/Users/leroy/Downloads/laser-gun.mp3"></audio>
+<audio id="powerup-sound" src="C:/Users/leroy/Downloads/powerup.mp3"></audio>
+<audio id="boss-arrives-music" src="C:/Users/leroy/Downloads/boss_arrives.mp3"></audio>
+<audio id="boss-shoot-sound" src="C:/Users/leroy/Downloads/boss_shoot.mp3"></audio>
+<audio id="dead-boss-music" src="C:/Users/leroy/Downloads/dead_boss.mp3"></audio>
+<audio id="nuke-sound" src="C:/Users/leroy/Downloads/nuke-explosion.mp3"></audio>
+
+
+<script>
+const canvas=document.getElementById("gameCanvas"),ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+
+// Game vars
+let playerName="Player",bestScore=0,score=0,gravity=0.5,jumpPower=-10;
+let gameStarted=false,gameOverFlag=false,obstacleSpeed=3,gap=250;
+let obstacles=[];
+let nukeActive = false;
+let gravitySurgeActive = false;
+let gravitySurgeTimer = 0;
+let bossSpawning = false;
+let bossDefeatBonus = 50;
+let bossDefeatedRecently = false; // New: Flag to prevent immediate next boss spawn
+let scoreAtLastBossDefeat = 0; // New: Store score when boss was defeated
+let countdownActive = false; // NEW: Flag for countdown
+let countdownValue = 3; // NEW: Current countdown number
+let countdownTimer = 0; // NEW: Timer for countdown intervals
+
+
+// Meerkat
+let meerkat={x:150,y:canvas.height/2,width:60,height:60,velocity:0,angle:0};
+let meerkatImg=new Image(); meerkatImg.src="C:/Users/leroy/Downloads/meerkat.png";
+let meerkatLoaded=false; meerkatImg.onload=()=>meerkatLoaded=true;
+
+// Load alien ship images
+let shipImgs = {};
+let shipNames = ["ship", "ship2", "ship4", "ship5"];
+shipNames.forEach(name => {
+    shipImgs[name] = new Image();
+    shipImgs[name].src = `C:/Users/leroy/Downloads/${name}.png`;
+});
+
+// Boss variables
+let boss = null;
+let bossImg = new Image();
+bossImg.src = "C:/Users/leroy/Downloads/alienboss.png";
+let bossLoaded = false;
+bossImg.onload = () => bossLoaded = true;
+let bossLasers = [];
+let bossShootCooldown = 0;
+let bossTargetY = canvas.height / 2;
+
+// Boss stages
+const BOSS_STAGES = [
+    { score: 25, hp: 2, speed: 1.5, shootInterval: [5000, 10000] },
+    { score: 60, hp: 5, speed: 2.0, shootInterval: [800, 1500] },
+    { score: 120, hp: 8, speed: 2.5, shootInterval: [600, 1200] },
+    { score: 200, hp: 12, speed: 2.8, shootInterval: [550, 1100] },
+    { score: 350, hp: 18, speed: 3.0, shootInterval: [500, 1000] },
+    { score: 550, hp: 25, speed: 3.2, shootInterval: [450, 900] },
+    { score: 800, hp: 35, speed: 3.5, shootInterval: [400, 800] },
+    { score: 1100, hp: 45, speed: 3.8, shootInterval: [350, 700] },
+    { score: 1450, hp: 60, speed: 4.0, shootInterval: [300, 600] },
+    { score: 1900, hp: 75, speed: 4.5, shootInterval: [250, 500] }
+];
+let currentBossIndex = 0;
+
+// Sounds
+const bgMusic=document.getElementById("bg-music"),
+      gameOverMusic=document.getElementById("gameover-music"),
+      rainSound=document.getElementById("rain-sound"),
+      thunderSound=document.getElementById("thunder-sound"),
+      coinSound=document.getElementById("coin-sound"),
+      laserSound = document.getElementById("laser-sound"),
+      powerupSound = document.getElementById("powerup-sound"),
+      bossArrivesMusic = document.getElementById("boss-arrives-music"),
+      bossShootSound = document.getElementById("boss-shoot-sound"),
+      deadBossMusic = document.getElementById("dead-boss-music"),
+      nukeSound = document.getElementById("nuke-sound");
+bgMusic.volume = 0.2;
+bossArrivesMusic.volume = 0.5;
+nukeSound.volume = 0.8;
+
+// Weather
+let currentWeather="sunny";let weatherTimer=0;
+let lightTrails = [];
+for(let i=0;i<150;i++){
+    lightTrails.push({
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+        length:5+Math.random()*15,
+        speed:2+Math.random()*4,
+        hue: Math.random() * 360
+    });
+}
+let lightningFlash=false;
+let gameStartTime=0;
+let screenShake = 0;
+
+// Particle effects
+let jumpParticles = [];
+let explosionParticles = [];
+
+// Power-up variables
+let powerups = [];
+let scoreMultiplier = 1;
+let multiplierTimer = 0;
+let powerupSpawnTimer = Date.now() + 10000;
+
+// Fireball power-up variables
+let fireballs = [];
+let hasFireballPower = false;
+let fireballCooldown = 0;
+
+// Collectible stars
+let collectibleStars = [];
+
+// Dynamic space theme background elements
+let stars = [];
+for (let i = 0; i < 200; i++) {
+    stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 1.5 + 0.2,
+        speed: Math.random() * 0.5 + 0.1,
+        alpha: Math.random()
+    });
+}
+
+// Boss background elements
+let nebulaParticles = [];
+for (let i = 0; i < 300; i++) {
+    nebulaParticles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 5 + 2,
+        speed: Math.random() * 0.5 + 0.1,
+        color: `hsl(${Math.random() * 30 + 330}, 100%, 50%)`
+    });
+}
+
+
+// Draw the dynamic space background
+function drawDynamicBackground() {
+    stars.forEach(s => {
+        s.alpha = Math.abs(Math.sin(Date.now() / 1000 + s.x * 0.01 + s.y * 0.01)) * 0.5 + 0.5;
+        ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
+        ctx.shadowColor = `rgba(255, 255, 255, ${s.alpha})`;
+        ctx.shadowBlur = s.radius * 2;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        s.x -= s.speed;
+        if (s.x < 0) {
+            s.x = canvas.width;
+            s.y = Math.random() * canvas.height;
+            s.alpha = Math.random();
+        }
+    });
+}
+// Draw a more intense, fiery space background for the boss
+function drawBossBackground() {
+    ctx.fillStyle = "#110011";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    nebulaParticles.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = 0.5;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        p.x -= p.speed;
+        if (p.x < 0) {
+            p.x = canvas.width;
+            p.y = Math.random() * canvas.height;
+        }
+    });
+    ctx.globalAlpha = 1;
+}
+
+// Progress text
+let progressText=null;
+
+// Controls
+document.addEventListener("keydown",e=>{
+    if(e.code==="Space"||e.code==="ArrowUp"){jump();}
+    if((e.key === 'f' || e.key === 'F') && hasFireballPower && Date.now() > fireballCooldown){fireFireball();}
+});
+document.addEventListener("mousedown",()=>jump());
+document.getElementById("nameSubmitBtn").addEventListener("click",()=>{
+    const nameInput=document.getElementById("playerNameInput");
+    if(nameInput.value.trim()!==""){playerName=nameInput.value.trim();}
+    document.getElementById("nameModal").style.display="none";
+    startCountdown(); // Call startCountdown instead of startGame directly
+});
+// Start Countdown
+function startCountdown() {
+    countdownActive = true;
+    countdownValue = 3;
+    countdownTimer = Date.now();
+    
+    // Reset initial game state but don't start movement yet
+    gameStarted=false;gameOverFlag=false;
+    meerkat.y=canvas.height/2;meerkat.velocity=0;score=0; meerkat.x=150;
+    obstacles=[];obstacleSpeed=3;gap=250;
+    powerups = [];
+    scoreMultiplier = 1;
+    multiplierTimer = 0;
+    powerupSpawnTimer = Date.now() + 10000;
+    collectibleStars = [];
+    fireballs = [];
+    hasFireballPower = false;
+    fireballCooldown = 0;
+    jumpParticles = [];
+    explosionParticles = [];
+    boss = null;
+    bossLasers = [];
+    bossShootCooldown = 0;
+    currentBossIndex = 0;
+    nukeActive = false;
+    gravitySurgeActive = false;
+    gravitySurgeTimer = 0;
+    bossSpawning = false;
+    bossDefeatedRecently = false;
+    scoreAtLastBossDefeat = 0;
+
+    thunderSound.pause(); thunderSound.currentTime=0;
+    bossArrivesMusic.pause(); bossArrivesMusic.currentTime = 0;
+    deadBossMusic.pause(); deadBossMusic.currentTime = 0;
+    bgMusic.pause(); bgMusic.currentTime = 0;
+
+    // Start the game loop, which will handle the countdown display
+    loop(); 
+}
+
+// Actual game start logic
+function startGame(){
+    gameStarted=true;
+    gameStartTime = Date.now();
+    try{bgMusic.play();}catch(e){}
+    currentWeather="sunny";weatherTimer=Date.now()+10000;
+    // loop() is already running, no need to call it again.
+}
+
+// Jump
+function jump(){
+    if(!gameStarted || countdownActive) return; // Prevent jump during countdown
+    meerkat.velocity=jumpPower;
+    for (let i = 0; i < 10; i++) {
+        jumpParticles.push({
+            x: meerkat.x + meerkat.width / 2,
+            y: meerkat.y + meerkat.height,
+            size: Math.random() * 5 + 2,
+            vx: (Math.random() - 0.5) * 5,
+            vy: Math.random() * 5,
+            alpha: 1,
+            color: `hsl(${Math.random() * 60 + 200}, 100%, 70%)`
+        });
+    }
+}
+
+// Game over
+function gameOver(){
+    if(gameOverFlag) return;
+    gameOverFlag=true;
+    bgMusic.pause(); bgMusic.currentTime = 0;
+    bossArrivesMusic.pause(); bossArrivesMusic.currentTime = 0;
+    deadBossMusic.pause(); deadBossMusic.currentTime = 0;
+    gameOverMusic.play();
+    if(score>bestScore) bestScore=score;
+    document.getElementById("bestScore").textContent=`Best: ${bestScore}`;
+    const modal=document.getElementById("gameModal");
+    modal.style.display="flex";
+    document.getElementById("modalContent").innerHTML=
+        `<h2>Game Over</h2><p>${playerName}, Score: ${score}</p>
+         <button onclick="document.getElementById(\'gameModal\').style.display=\'none\'; startCountdown();">Play Again</button>
+         <button onclick="window.location.href=\'leaderboard.html\'">View Leaderboard</button>`;
+    thunderSound.pause(); thunderSound.currentTime=0;
+    document.body.style.backgroundColor = '#000033';
+}
+
+// Nuke ending
+function triggerNukeEnding() {
+    nukeActive = true;
+    bgMusic.pause();
+    deadBossMusic.pause();
+    bossArrivesMusic.pause();
+    nukeSound.play();
+    showProgressText("VICTORY!");
+
+    cancelAnimationFrame(loopId);
+
+    let flash = document.createElement('div');
+    flash.style.position = 'absolute';
+    flash.style.top = '0';
+    flash.style.left = '0';
+    flash.style.width = '100%';
+    flash.style.height = '100%';
+    flash.style.backgroundColor = 'white';
+    flash.style.opacity = '0';
+    flash.style.zIndex = '100';
+    flash.style.transition = 'opacity 0.5s ease-in-out';
+    document.body.appendChild(flash);
+
+    setTimeout(() => {
+        flash.style.opacity = '1';
+        setTimeout(() => {
+            document.body.style.backgroundColor = 'black';
+            document.getElementById("gameModal").style.display = "flex";
+            document.getElementById("modalContent").innerHTML = `<h2>The End</h2><p>${playerName}, You have defeated all the bosses and saved the galaxy!</p><p>Final Score: ${score}</p><button onclick="window.location.reload();">Play Again?</button>`;
+            document.getElementById("gameCanvas").style.filter = 'grayscale(100%)';
+            flash.style.opacity = '0';
+        }, 500);
+    }, 50);
+}
+
+
+// Weather update
+function updateWeather(){
+    if(Date.now()>weatherTimer){
+        const previous=currentWeather;
+        const types=["sunny","asteroidShower","stormy"];
+        currentWeather=types[Math.floor(Math.random()*types.length)];
+        weatherTimer=Date.now()+10000+Math.random()*10000;
+
+        if(currentWeather==="stormy"){thunderSound.play(); screenShake=10;}
+    }
+}
+
+// Obstacles
+function spawnObstacle() {
+    const currentGap = Math.max(150, gap - (score / 10));
+    // obstacleSpeed will be capped at a reasonable level after boss defeat
+    const currentObstacleSpeed = Math.min(obstacleSpeed + (score / 50), 8); // Cap max speed
+    // console.log("Current Obstacle Speed:", currentObstacleSpeed);
+
+
+    const minHeight = 50,
+        maxHeight = canvas.height - currentGap - 50;
+    const topGapY = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+    const randomShipName = shipNames[Math.floor(Math.random() * shipNames.length)];
+    const obstacleHeight = 80;
+    const obstacleWidth = 100;
+
+    obstacles.push({
+        x: canvas.width,
+        y: topGapY - obstacleHeight,
+        width: obstacleWidth,
+        height: obstacleHeight,
+        effectiveWidth: obstacleHeight,
+        effectiveHeight: obstacleWidth,
+        shipName: randomShipName,
+        isTop: true,
+        speed: currentObstacleSpeed
+    });
+    obstacles.push({
+        x: canvas.width,
+        y: topGapY + currentGap,
+        width: obstacleWidth,
+        height: obstacleHeight,
+        effectiveWidth: obstacleHeight,
+        effectiveHeight: obstacleWidth,
+        shipName: randomShipName,
+        isBottom: true,
+        speed: currentObstacleSpeed
+    });
+
+    if (Math.random() < 0.2) {
+        collectibleStars.push({
+            x: canvas.width + 50,
+            y: topGapY + currentGap / 2,
+            radius: 12,
+            speed: currentObstacleSpeed,
+            type: 'fireball'
+        });
+    } else {
+        collectibleStars.push({
+            x: canvas.width + 50,
+            y: topGapY + currentGap / 2,
+            radius: 12,
+            speed: currentObstacleSpeed,
+            type: 'coin'
+        });
+    }
+}
+
+
+// Draw obstacles as Alien Structures/Space Debris with a thruster effect
+function drawObstacles() {
+    for (let o of obstacles) {
+        ctx.save();
+        ctx.translate(o.x + o.width / 2, o.y + o.height / 2);
+        ctx.rotate(Math.PI / 2);
+        let glowGradient = ctx.createRadialGradient(-o.width * 0.4, 0, 0, -o.width * 0.4, 0, 30);
+        glowGradient.addColorStop(0, 'rgba(255, 0, 255, 0.8)');
+        glowGradient.addColorStop(0.5, 'rgba(255, 0, 255, 0.4)');
+        glowGradient.addColorStop(1, 'rgba(255, 0, 255, 0)');
+        ctx.fillStyle = glowGradient;
+        ctx.beginPath();
+        ctx.moveTo(-o.width * 0.4, 0);
+        ctx.lineTo(-o.width * 0.5, -20);
+        ctx.lineTo(-o.width * 0.7, 0);
+        ctx.lineTo(-o.width * 0.5, 20);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+        let shipImg = shipImgs[o.shipName];
+        if (shipImg && shipImg.complete) {
+            ctx.save();
+            ctx.translate(o.x + o.width / 2, o.y + o.height / 2);
+            ctx.rotate(Math.PI / 2);
+            ctx.drawImage(shipImg, -o.width / 2, -o.height / 2, o.width, o.height);
+            ctx.restore();
+        } else {
+            ctx.fillStyle = "cyan";
+            ctx.fillRect(o.x, o.y, o.width, o.height);
+        }
+        o.x -= o.speed;
+    }
+    obstacles = obstacles.filter(o => o.x + o.effectiveWidth > 0);
+}
+
+
+// Draw collectible stars (now coins)
+function drawCollectibleStars() {
+    collectibleStars.forEach(s => {
+        ctx.save();
+        if (s.type === 'coin') {
+            let grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.radius);
+            grad.addColorStop(0, "gold");
+            grad.addColorStop(0.9, "#b8860b");
+            grad.addColorStop(1, "darkgoldenrod");
+            ctx.fillStyle = grad;
+        } else {
+            let grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.radius);
+            grad.addColorStop(0, "magenta");
+            grad.addColorStop(0.9, "purple");
+            grad.addColorStop(1, "darkviolet");
+            ctx.fillStyle = grad;
+        }
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,0.7)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.radius * 0.7, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+        s.x -= s.speed;
+    });
+    collectibleStars = collectibleStars.filter(s => s.x + s.radius > 0);
+}
+
+
+// Light trail drawing function
+function drawLightTrails(){
+    lightTrails.forEach(l=>{
+        ctx.beginPath();
+        let grad = ctx.createLinearGradient(l.x, l.y, l.x, l.y + l.length);
+        grad.addColorStop(0, `hsla(${l.hue}, 100%, 80%, 0)`);
+        grad.addColorStop(0.5, `hsla(${l.hue}, 100%, 80%, 0.5)`);
+        grad.addColorStop(1, `hsla(${l.hue}, 100%, 80%, 0)`);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 2;
+        ctx.moveTo(l.x, l.y);
+        ctx.lineTo(l.x, l.y + l.length);
+        ctx.stroke();
+        l.y+=l.speed;
+        if(l.y>canvas.height){
+            l.y=-l.length;
+            l.x=Math.random()*canvas.width;
+            l.hue = Math.random() * 360;
+        }
+    });
+}
+
+// Power-up functions
+function spawnPowerup() {
+    let powerupType = Math.random() < 0.5 ? 'multiplier' : 'gravitySurge';
+    powerups.push({
+        x: canvas.width,
+        y: Math.random() * (canvas.height - 100) + 50,
+        size: 30,
+        speed: 3,
+        type: powerupType
+    });
+}
+
+function drawPowerups() {
+    powerups.forEach(p => {
+        ctx.save();
+        if (p.type === 'gravitySurge') {
+            let grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+            grad.addColorStop(0, "#4a004a");
+            grad.addColorStop(1, "#1a001a");
+            ctx.fillStyle = grad;
+            ctx.shadowColor = "rgba(255, 0, 255, 1)";
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+        } else {
+            let grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+            grad.addColorStop(0, "yellow");
+            grad.addColorStop(1, "gold");
+            ctx.fillStyle = grad;
+            ctx.shadowColor = "rgba(255, 255, 0, 1)";
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            for (let i = 0; i < 5; i++) {
+                ctx.lineTo(
+                    p.x + p.size * Math.cos((i * 72 + 18) * Math.PI / 180),
+                    p.y + p.size * Math.sin((i * 72 + 18) * Math.PI / 180)
+                );
+                ctx.lineTo(
+                    p.x + p.size * 0.4 * Math.cos((i * 72 + 54) * Math.PI / 180),
+                    p.y + p.size * 0.4 * Math.sin((i * 72 + 54) * Math.PI / 180)
+                );
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
+        ctx.restore();
+        p.x -= p.speed;
+    });
+}
+
+function drawLightning(){
+    if(Math.random()<0.01){
+        lightningFlash=true;
+        screenShake = 10;
+        setTimeout(()=>lightningFlash=false,200);
+    }
+    if(lightningFlash){
+        ctx.fillStyle="rgba(255,255,255,0.8)";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+    }
+}
+
+
+// Fireball functions (meerkat's laser)
+function fireFireball() {
+    if (hasFireballPower && Date.now() > fireballCooldown && gameStarted && !countdownActive) {
+        fireballCooldown = Date.now() + 200;
+        laserSound.currentTime = 0;
+        laserSound.play();
+        fireballs.push({
+            x: meerkat.x + meerkat.width,
+            y: meerkat.y + meerkat.height / 2,
+            width: 30,
+            height: 5,
+            speed: 15,
+            color: "cyan",
+            hit: false
+        });
+    }
+}
+
+function drawFireballs() {
+    fireballs.forEach(f => {
+        ctx.save();
+        const alpha = Math.sin(Date.now() * 0.01) * 0.5 + 0.5;
+        ctx.fillStyle = `rgba(0, 255, 255, ${alpha})`;
+        ctx.shadowColor = `rgba(0, 255, 255, ${alpha})`;
+        ctx.shadowBlur = 20;
+        ctx.fillRect(f.x, f.y - f.height / 2, f.width, f.height);
+        ctx.restore();
+        f.x += f.speed;
+    });
+    fireballs = fireballs.filter(f => f.x < canvas.width);
+}
+
+// Draw and update jump particles
+function drawJumpParticles() {
+    for (let i = jumpParticles.length - 1; i >= 0; i--) {
+        let p = jumpParticles[i];
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= 0.05;
+        p.size *= 0.95;
+        p.vy += 0.1;
+        if (p.alpha <= 0.1 || p.size <= 0.5) {
+            jumpParticles.splice(i, 1);
+        }
+    }
+    ctx.globalAlpha = 1;
+}
+
+// Draw and update explosion particles
+function drawExplosionParticles() {
+    for (let i = explosionParticles.length - 1; i >= 0; i--) {
+        let p = explosionParticles[i];
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= 0.03;
+        p.size *= 0.97;
+        if (p.alpha <= 0.1 || p.size <= 0.5) {
+            explosionParticles.splice(i, 1);
+        }
+    }
+    ctx.globalAlpha = 1;
+}
+
+// Boss drawing and logic
+function spawnBoss() {
+    // Only spawn if no boss is currently active and not already spawning
+    if (boss || bossSpawning || bossDefeatedRecently) return;
+
+    console.log("Spawning boss at score: " + score);
+    bossSpawning = true; // Set boss spawning flag
+    const bossStats = BOSS_STAGES[currentBossIndex];
+    boss = {
+        x: canvas.width,
+        y: canvas.height / 2 - 75,
+        width: 150,
+        height: 150,
+        hp: bossStats.hp,
+        maxHp: bossStats.hp,
+        targetX: canvas.width - 200,
+        speed: bossStats.speed,
+        velocity: 2,
+        direction: 1,
+        shootInterval: bossStats.shootInterval
+    };
+    bossTargetY = Math.random() * (canvas.height - boss.height - 100) + 50;
+    bgMusic.pause();
+    bossArrivesMusic.currentTime = 0;
+    bossArrivesMusic.play();
+    showProgressText("BOSS APPROACHING!");
+    document.body.style.backgroundColor = '#4d0000';
+    hasFireballPower = true;
+}
+
+function drawBoss() {
+    if (!boss || !bossLoaded) return;
+    if (boss.x > boss.targetX) {
+        boss.x -= boss.speed;
+    } else {
+        bossSpawning = false; // Boss has arrived
+        const lerpFactor = 0.02;
+        boss.y += (bossTargetY - boss.y) * lerpFactor;
+        if (Math.abs(bossTargetY - boss.y) < 1) {
+            bossTargetY = Math.random() * (canvas.height - boss.height - 100) + 50;
+        }
+
+        if (Date.now() > bossShootCooldown) {
+            bossShootCooldown = Date.now() + (Math.random() * (boss.shootInterval[1] - boss.shootInterval[0]) + boss.shootInterval[0]);
+            bossShootSound.currentTime = 0;
+            bossShootSound.play();
+            bossLasers.push({
+                x: boss.x,
+                y: boss.y + boss.height / 2,
+                width: 40,
+                height: 7,
+                speed: -10,
+                color: "red"
+            });
+        }
+    }
+    ctx.drawImage(bossImg, boss.x, boss.y, boss.width, boss.height);
+    // Draw Health Bar
+    const barWidth = 100;
+    const barHeight = 10;
+    const barX = boss.x + (boss.width - barWidth) / 2;
+    const barY = boss.y - 20;
+
+    // Background bar
+    ctx.fillStyle = "red";
+    ctx.fillRect(barX, barY, barWidth, barHeight);
+
+    // Health portion
+    const healthWidth = (boss.hp / boss.maxHp) * barWidth;
+    ctx.fillStyle = "lime";
+    ctx.fillRect(barX, barY, healthWidth, barHeight);
+
+    // Border
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(barX, barY, barWidth, barHeight);
+}
+
+function drawBossLasers() {
+    bossLasers.forEach(laser => {
+        ctx.save();
+        const alpha = Math.sin(Date.now() * 0.01) * 0.5 + 0.5;
+        ctx.fillStyle = `rgba(255, 0, 0, ${alpha})`;
+        ctx.shadowColor = `rgba(255, 0, 0, ${alpha})`;
+        ctx.shadowBlur = 20;
+        ctx.fillRect(laser.x - laser.width, laser.y - laser.height / 2, laser.width, laser.height);
+        ctx.restore();
+        laser.x += laser.speed;
+    });
+    bossLasers = bossLasers.filter(laser => laser.x > 0);
+}
+
+
+// Meerkat
+function drawMeerkat(){ctx.save();ctx.translate(meerkat.x+meerkat.width/2,meerkat.y+meerkat.height/2);ctx.rotate(meerkat.angle);
+if(meerkatLoaded){ctx.drawImage(meerkatImg,-meerkat.width/2,-meerkat.height/2,meerkat.width,meerkat.height);} else {ctx.fillStyle="orange";ctx.fillRect(-meerkat.width/2,-meerkat.width/2,meerkat.width,meerkat.height);} ctx.restore();}
+
+// Progress text
+function showProgressText(text){
+    progressText = {text:text, alpha:1, timer:Date.now()};
+}
+
+// Function to reset game state after boss defeat
+function resetToNormalGameplay() {
+    boss = null;
+    hasFireballPower = false;
+    obstacles = [];
+    bossLasers = [];
+    bossArrivesMusic.pause();
+    bossArrivesMusic.currentTime = 0;
+    deadBossMusic.play();
+    bgMusic.currentTime = 0;
+    bgMusic.play();
+    document.body.style.backgroundColor = '#000033';
+    bossSpawning = false;
+    obstacleSpeed = 3;
+    gap = 250;
+
+    // Set flag and timer to prevent immediate next boss spawn
+    bossDefeatedRecently = true;
+    scoreAtLastBossDefeat = score; // Store current score for next boss threshold calculation
+    setTimeout(() => {
+        bossDefeatedRecently = false;
+    }, 5000); // 5 seconds of normal gameplay before next boss can spawn
+}
+
+// Loop
+let loopId;
+function loop(){
+    if (nukeActive) return;
+    ctx.save();
+    if(screenShake > 0) {
+        let shakeX = (Math.random() - 0.5) * screenShake;
+        let shakeY = (Math.random() - 0.5) * screenShake;
+        ctx.translate(shakeX, shakeY);
+        screenShake -= 0.5;
+    }
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    if (!boss) {
+        drawDynamicBackground();
+    } else {
+        drawBossBackground();
+    }
+    
+    // Countdown logic
+    if (countdownActive) {
+        if (Date.now() - countdownTimer > 1000) { // Every second
+            countdownValue--;
+            countdownTimer = Date.now();
+            if (countdownValue < 0) {
+                countdownActive = false;
+                startGame(); // Start the game proper
+            }
+        }
+
+        // Draw countdown text
+        ctx.fillStyle = "#fff";
+        ctx.strokeStyle = "#00ffff";
+        ctx.lineWidth = 4;
+        ctx.shadowColor = "rgba(0, 255, 255, 1)";
+        ctx.shadowBlur = 15;
+        ctx.font = "60px 'Press Start 2P'";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        let countdownText;
+        if (countdownValue > 0) {
+            countdownText = countdownValue.toString();
+        } else if (countdownValue === 0) {
+            countdownText = "GO!";
+        } else { // Should not happen if logic is correct, but for safety
+            countdownText = "";
+        }
+
+        ctx.fillText(playerName, canvas.width / 2, canvas.height / 2 - 80);
+        ctx.strokeText(playerName, canvas.width / 2, canvas.height / 2 - 80);
+
+        ctx.font = "80px 'Press Start 2P'";
+        ctx.fillText(countdownText, canvas.width / 2, canvas.height / 2 + 20);
+        ctx.strokeText(countdownText, canvas.width / 2, canvas.height / 2 + 20);
+
+        ctx.restore(); // Restore context after drawing text
+        // Keep loop running but no game logic
+        if(!gameOverFlag) loopId = requestAnimationFrame(loop);
+        return; // Exit loop early if countdown is active
+    }
+
+    // --- Normal game loop logic starts here ---
+    updateWeather();
+    if (!boss && Date.now() > powerupSpawnTimer) {
+        spawnPowerup();
+        powerupSpawnTimer = Date.now() + 10000 + Math.random() * 5000;
+    }
+    if(currentWeather==="asteroidShower") drawLightTrails();
+    if(currentWeather==="stormy") drawLightning();
+    drawPowerups();
+    drawCollectibleStars();
+    drawFireballs();
+    drawJumpParticles();
+    drawExplosionParticles();
+    if (!boss && !bossSpawning) { // Only draw regular obstacles if no boss is present or spawning
+        drawObstacles();
+    }
+    drawMeerkat();
+    let currentGravity = gravity;
+    if (gravitySurgeActive) {
+        currentGravity *= 2.5;
+    }
+    meerkat.velocity+=currentGravity; meerkat.y+=meerkat.velocity;
+    meerkat.angle=Math.min(Math.PI/4,meerkat.velocity*0.05);
+    if(meerkat.y+meerkat.height>canvas.height||meerkat.y<0){gameOver();}
+    if (!boss) { // Only check collision with regular obstacles if no boss is present
+        for(let o of obstacles){
+            if(meerkat.x < o.x + o.effectiveWidth && meerkat.x + meerkat.width > o.x &&
+               meerkat.y < o.y + o.effectiveHeight && meerkat.y + meerkat.height > o.y) {
+                gameOver();
+            }
+        }
+    }
+    for(let i = 0; i < collectibleStars.length; i++) {
+        let s = collectibleStars[i];
+        if (meerkat.x < s.x + s.radius && meerkat.x + meerkat.width > s.x - s.radius && meerkat.y < s.y + s.radius && meerkat.y + meerkat.height > s.y - s.radius) {
+            if (s.type === 'fireball') {
+                hasFireballPower = true;
+                showProgressText("FIREBALL POWER!");
+                powerupSound.currentTime = 0;
+                powerupSound.play();
+            } else {
+                if (!boss) {
+                    score++;
+                }
+                coinSound.currentTime = 0;
+                coinSound.play();
+            }
+            collectibleStars.splice(i, 1);
+            i--;
+        }
+    }
+    for(let i = 0; i < powerups.length; i++) {
+        let p = powerups[i];
+        if(meerkat.x < p.x + p.size && meerkat.x + meerkat.width > p.x && meerkat.y < p.y + p.size && meerkat.y + meerkat.height > p.y) {
+            if (p.type === 'multiplier') {
+                scoreMultiplier = 2;
+                multiplierTimer = Date.now() + 5000;
+                showProgressText("2X MULTIPLIER!");
+            } else if (p.type === 'gravitySurge') {
+                gravitySurgeActive = true;
+                gravitySurgeTimer = Date.now() + 5000;
+                showProgressText("GRAVITY SURGE!");
+            }
+            powerupSound.currentTime = 0;
+            powerupSound.play();
+            powerups.splice(i, 1);
+            break;
+        }
+    }
+    if (Date.now() > multiplierTimer) {
+        scoreMultiplier = 1;
+    }
+    if (Date.now() > gravitySurgeTimer) {
+        gravitySurgeActive = false;
+    }
+    for (let i = fireballs.length - 1; i >= 0; i--) {
+        let f = fireballs[i];
+        // Collision with regular obstacles (if no boss)
+        if (!boss) {
+            for (let j = obstacles.length - 1; j >= 0; j--) {
+                let o = obstacles[j];
+                if (f.x + f.width > o.x && f.x < o.x + o.effectiveWidth && f.y + f.height > o.y && f.y < o.y + o.effectiveHeight) {
+                    for (let k = 0; k < 20; k++) {
+                        explosionParticles.push({
+                            x: o.x + o.effectiveWidth / 2,
+                            y: o.y + o.effectiveHeight / 2,
+                            size: Math.random() * 8 + 3,
+                            vx: (Math.random() - 0.5) * 10,
+                            vy: (Math.random() - 0.5) * 10,
+                            alpha: 1,
+                            color: `hsl(${Math.random() * 60 + 330}, 100%, 70%)`
+                        });
+                    }
+                    score += 1 * scoreMultiplier;
+                    showProgressText("+1 Point");
+                    fireballs.splice(i, 1);
+                    obstacles.splice(j, 1);
+                    break;
+                }
+            }
+        }
+        // Collision with boss
+        if (boss && !gameOverFlag && f.x + f.width > boss.x && f.x < boss.x + boss.width && f.y + f.height > boss.y && f.y < boss.y + boss.height && !f.hit) {
+            console.log("Fireball hit! Boss HP: " + boss.hp);
+            f.hit = true;
+            boss.hp--;
+            showProgressText("BOSS HIT! HP: " + boss.hp);
+            if (boss.hp <= 0) {
+                console.log("Boss defeated!");
+                score += bossDefeatBonus; // Apply the boss defeat bonus here
+                showProgressText("AWESOME! Boss Defeated! +" + bossDefeatBonus + " points");
+                if (currentBossIndex === BOSS_STAGES.length - 1) {
+                    triggerNukeEnding();
+                } else {
+                    currentBossIndex++;
+                    resetToNormalGameplay();
+                }
+            }
+            for (let k = 0; k < 15; k++) {
+                explosionParticles.push({
+                    x: f.x,
+                    y: f.y,
+                    size: Math.random() * 7 + 2,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    alpha: 1,
+                    color: "orange"
+                });
+            }
+        }
+    }
+    for(let i = fireballs.length - 1; i >= 0; i--){
+        if(fireballs[i].hit || fireballs[i].x > canvas.width) {
+            fireballs.splice(i, 1);
+        }
+    }
+
+    if (boss) {
+        drawBoss();
+        drawBossLasers();
+        for (let i = bossLasers.length - 1; i >= 0; i--) {
+            let laser = bossLasers[i];
+            if (meerkat.x < laser.x + laser.width && meerkat.x + meerkat.width > laser.x &&
+                meerkat.y < laser.y + laser.height && meerkat.y + meerkat.height > laser.y) {
+                gameOver();
+                break;
+            }
+        }
+    }
+    obstacles.forEach(o=>{
+        if(!o.passed && o.x + o.effectiveWidth < meerkat.x && o.isTop) {
+            if (!boss) { // Only increment score from obstacles if no boss is present
+                score += 1 * scoreMultiplier;
+            }
+            o.passed=true;
+            const bottomObstacle = obstacles.find(other => other.x === o.x && other.isBottom);
+            if(bottomObstacle) bottomObstacle.passed = true;
+        }
+    });
+    let elapsedTime = Math.floor((Date.now() - gameStartTime)/1000);
+    document.getElementById("scoreboard").textContent=`Score: ${score} | Time: ${elapsedTime}s`;
+
+    // Logic to spawn next boss or regular obstacles
+    const nextBossStage = BOSS_STAGES[currentBossIndex];
+    const nextBossThreshold = nextBossStage ? nextBossStage.score : Infinity;
+
+    // Condition to spawn boss:
+    // - No boss currently active (`!boss`)
+    // - Not currently in the boss spawning animation (`!bossSpawning`)
+    // - Not just defeated a boss (`!bossDefeatedRecently`)
+    // - Player's score (minus score at last defeat) has reached the required threshold
+    if (!boss && !bossSpawning && !bossDefeatedRecently && (score - scoreAtLastBossDefeat) >= nextBossThreshold) {
+        spawnBoss();
+    } else {
+        // Spawn obstacles only if no boss is present and a new boss is not spawning
+        if(!boss && !bossSpawning && (obstacles.length===0||obstacles[obstacles.length-1].x<canvas.width-300)){
+            spawnObstacle();
+        }
+    }
+    if(progressText){
+        ctx.save();
+        ctx.globalAlpha = progressText.alpha;
+        ctx.fillStyle = "#ffff00";
+        ctx.strokeStyle = "#ff00ff";
+        ctx.lineWidth = 4;
+        ctx.shadowColor = "rgba(255, 0, 255, 1)";
+        ctx.shadowBlur = 10;
+        ctx.font = "48px 'Press Start 2P'";
+        ctx.textAlign = "center";
+        ctx.fillText(progressText.text, canvas.width/2, canvas.height/2);
+        ctx.strokeText(progressText.text, canvas.width/2, canvas.height/2);
+        ctx.restore();
+        progressText.alpha -= 0.02;
+        if(progressText.alpha <= 0) progressText = null;
+    }
+    ctx.restore();
+    if(!gameOverFlag) loopId = requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>

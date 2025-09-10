@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Cool Wall - AstroMeerk!</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Press Start 2P', cursive; /* Use game's font */
+            background: #000033; /* Dark space background */
+            display: flex;
+            flex-direction: column; /* Allow content to stack vertically */
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: #fff; /* White text by default */
+            padding: 20px 10px; /* Add some padding for smaller screens */
+        }
+
+        /* General container for the leaderboard */
+        .leaderboard-container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.7); /* Cyan outer glow */
+            border: 2px solid cyan; /* Neon cyan border */
+            background: #0a0a2a; /* Darker, more space-like background */
+            max-width: 600px;
+            width: 100%; /* Take full width within max-width */
+            animation: fadeIn 0.5s ease-in-out;
+            position: relative;
+            margin-bottom: 20px; /* Space between leaderboard and button */
+        }
+
+        /* Header link back to game */
+        .back-to-game {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.2s ease-in-out;
+        }
+
+        .back-to-game:hover {
+            color: #ff00ff; /* Fuchsia on hover */
+        }
+
+        .back-to-game svg {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            stroke: currentColor; /* Inherit color */
+        }
+
+        .back-to-game span {
+            font-size: 1em; /* Adjusted font size */
+        }
+
+        /* Leaderboard title */
+        .leaderboard-container h1 {
+            color: #00ffff; /* Neon Cyan for the title */
+            font-size: 2.5em; /* Slightly smaller for leaderboard title */
+            margin: 0 0 10px;
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+            animation: pulsateTitle 1.5s ease-in-out infinite alternate;
+        }
+
+        .leaderboard-container p {
+            color: #aaa; /* Lighter grey for subtitle */
+            font-size: 0.9em;
+            margin-top: 5px;
+            margin-bottom: 25px;
+        }
+
+        /* Search input and button group */
+        .search-group {
+            display: flex;
+            gap: 10px; /* Space between input and button */
+            margin-bottom: 25px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 15px;
+            border-radius: 8px;
+            background: #1a1a4c; /* Dark blue background */
+            color: #fff;
+            border: 2px solid #00ffff; /* Neon cyan border */
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.9em;
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.5); /* Subtle cyan glow */
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-input::placeholder {
+            color: #888;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #ff00ff; /* Fuchsia on focus */
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.7);
+        }
+
+        .search-button {
+            background: #1a1a4c; /* Dark blue button background */
+            color: #fff;
+            border: 2px solid #ff00ff; /* Fuchsia border */
+            padding: 12px 18px; /* Adjusted padding */
+            font-size: 0.9em;
+            cursor: pointer;
+            border-radius: 8px;
+            box-shadow: 0 0 10px #ff00ff; /* Fuchsia glow */
+            transition: transform 0.1s, box-shadow 0.3s;
+            display: flex; /* For SVG icon alignment */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #ff00ff;
+        }
+
+        .search-button:active {
+            transform: scale(0.95);
+        }
+
+        .search-button svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+        }
+
+        /* Leaderboard list styling */
+        #leaderboard-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+
+        #leaderboard-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            font-size: 0.9em; /* Smaller font for list items */
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        #leaderboard-list li:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5); /* Subtle cyan glow on hover */
+        }
+
+        /* Specific styles for rank 1, 2, 3 */
+        .rank-1 {
+            background: linear-gradient(to right, #6a006a, #8a008a); /* Darker fuchsia gradient */
+            color: #ffe0ff; /* Lighter fuchsia text */
+            border: 2px solid #ff00ff;
+            box-shadow: 0 0 15px #ff00ff; /* Fuchsia glow */
+            animation: pulsateListItem 1.5s ease-in-out infinite alternate;
+        }
+        .rank-1:hover {
+             box-shadow: 0 0 25px #ff00ff;
+        }
+
+        .rank-2 {
+            background: linear-gradient(to right, #004d4d, #006666); /* Darker teal gradient */
+            color: #e0ffff; /* Lighter cyan text */
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 15px #00ffff; /* Cyan glow */
+        }
+        .rank-2:hover {
+             box-shadow: 0 0 25px #00ffff;
+        }
+
+        .rank-3 {
+            background: linear-gradient(to right, #4d3300, #664400); /* Darker orange/gold gradient */
+            color: #fff8e0; /* Lighter gold text */
+            border: 2px solid #ffd700; /* Gold border */
+            box-shadow: 0 0 15px #ffd700; /* Gold glow */
+        }
+        .rank-3:hover {
+            box-shadow: 0 0 25px #ffd700;
+        }
+
+        /* Default list item style for ranks > 3 */
+        .default-rank {
+            background: #1a1a4c; /* Dark blue background */
+            color: #fff;
+            border: 1px solid #00ffff; /* Cyan border */
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.3); /* Subtle cyan glow */
+        }
+        .default-rank:hover {
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+        }
+
+        #leaderboard-list li .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #leaderboard-list li .rank-display {
+            font-size: 1.2em; /* Bigger for rank number/icon */
+            width: 30px; /* Fixed width for alignment */
+            text-align: center;
+        }
+        
+        #leaderboard-list li .player-name {
+            font-size: 1em;
+            max-width: 180px; /* Limit name width */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; /* Add ellipsis for long names */
+        }
+
+        #leaderboard-list li .score-display {
+            font-size: 1.1em;
+            color: #ffe0ff; /* Fuchsia for scores */
+            text-shadow: 0 0 5px #ff00ff;
+        }
+
+        /* Keyframe animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulsateTitle {
+            from { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff; }
+            to { text-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff; }
+        }
+        
+        @keyframes pulsateListItem {
+            0% { box-shadow: 0 0 15px #ff00ff; }
+            50% { box-shadow: 0 0 25px #ff00ff, 0 0 5px rgba(255,255,255,0.5); }
+            100% { box-shadow: 0 0 15px #ff00ff; }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .leaderboard-container h1 {
+                font-size: 2em;
+            }
+            .search-input, .search-button, .back-to-game span, #leaderboard-list li {
+                font-size: 0.8em;
+            }
+            #leaderboard-list li .rank-display {
+                font-size: 1em;
+            }
+            #leaderboard-list li .player-name {
+                max-width: 100px; /* Adjust for smaller screens */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="leaderboard-container">
+        <header class="text-center">
+            <a href="index.html" class="back-to-game">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                </svg>
+                <span>Back to Home</span>
+            </a>
+            <h1>The Cool Wall</h1>
+            <p>Top 50 AstroMeerk Pilots</p>
+        </header>
+
+        <div class="search-group">
+            <input type="
